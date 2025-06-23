@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>第三關：法國 可頌大作戰</title>
+  <title>第三關：法國 團體大挑戰</title>
   <style>
     @font-face {
       font-family: 'WCL07';
@@ -85,16 +85,16 @@
 </head>
 <body>
   <div class="container">
-    <h1>SDGs 第17項 - 法國合作任務：可頌大作戰</h1>
+    <h1>SDGs 第17項 - 法國合作任務：團體大挑戰</h1>
     <img src="images/france.png" class="flag" alt="法國國旗" />
     <div id="intro">
-      <p>🥐 合作烘焙任務開始囉！請將五個材料按照正確順序拖曳至下方空格中，完成可頌大作戰。</p>
-      <p>🔁 每次嘗試後，系統會告訴你幾個材料位置正確，試著找出正解吧！</p>
+      <p>合作排大小任務開始囉！請將五個圖片按照從團體大到小的順序拖曳至下方空格中，完成可頌大作戰。</p>
+      <p>🔁 每次嘗試後，系統會告訴你幾個團體位置正確，試著找出正解吧！</p>
       <button id="start-btn" class="btn">開始遊戲</button>
     </div>
 
     <div id="game-content">
-      <h2>請拖曳正確順序的材料：</h2>
+      <h2>請拖曳正確順序的團體大小：</h2>
       <div class="input-area" id="slots">
         <div class="drop-slot" data-index="0"></div>
         <div class="drop-slot" data-index="1"></div>
@@ -107,29 +107,42 @@
         <!-- 動態加入圖片 -->
       </div>
 
-      <button class="btn" onclick="checkOrder()">提交配方</button>
+      <button class="btn" onclick="checkOrder()">提交答案</button>
     </div>
   </div>
 
   <audio id="bgm" src="audio/bgm_france.mp3" loop></audio>
 
   <script>
-    const correctOrder = ["flour.png", "butter.png", "yeast.png", "sugar.png", "milk.png"];
+    const correctOrder = [
+      "images/international_alliance.png",  // 最大的團體
+      "images/corporate_partnership.png",
+      "images/government_partnership.png",
+      "images/community_partnership.png",
+      "images/ngo_partnership.png"  // 最小的團體
+    ];
     let currentAttempt = [];
     const slots = document.querySelectorAll('.drop-slot');
-    const materials = ["flour.png", "butter.png", "yeast.png", "sugar.png", "milk.png"];
+    const materials = [
+      { name: "國際聯盟", img: "images/international_alliance.png" },
+      { name: "企業合作", img: "images/corporate_partnership.png" },
+      { name: "政府合作", img: "images/government_partnership.png" },
+      { name: "社區合作", img: "images/community_partnership.png" },
+      { name: "非政府組織", img: "images/ngo_partnership.png" }
+    ];
 
     function shuffleMaterials() {
       const shuffled = [...materials].sort(() => Math.random() - 0.5);
       const container = document.getElementById('material-list');
       container.innerHTML = "";
-      shuffled.forEach(name => {
+      shuffled.forEach(item => {
         const img = document.createElement("img");
-        img.src = `images/${name}`;
+        img.src = item.img;
+        img.alt = item.name;
         img.className = "material-img";
         img.draggable = true;
         img.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData("text/plain", name);
+          e.dataTransfer.setData("text/plain", item.img);
         });
         container.appendChild(img);
       });
@@ -139,36 +152,43 @@
       slot.addEventListener('dragover', e => e.preventDefault());
       slot.addEventListener('drop', e => {
         e.preventDefault();
-        const name = e.dataTransfer.getData("text/plain");
+        const imgSrc = e.dataTransfer.getData("text/plain");
         const img = document.createElement("img");
-        img.src = `images/${name}`;
+        img.src = imgSrc;
         slot.innerHTML = "";
         slot.appendChild(img);
-        slot.setAttribute("data-img", name);
+        slot.setAttribute("data-img", imgSrc);
       });
     });
 
     function checkOrder() {
       const attempt = [];
       slots.forEach(slot => {
-        attempt.push(slot.getAttribute("data-img"));
+        const imgSrc = slot.getAttribute("data-img");
+        console.log(imgSrc); // 查看每個 slot 中的 imgSrc
+        attempt.push(imgSrc);
       });
 
       if (attempt.includes(null) || attempt.includes("null") || attempt.includes(undefined)) {
-        alert("請確保每個空格都有材料喔！");
+        alert("請確保每個空格都有圖片喔！");
         return;
       }
 
       let correct = 0;
       for (let i = 0; i < correctOrder.length; i++) {
-        if (attempt[i] === correctOrder[i]) correct++;
+        if (attempt[i] === correctOrder[i]) {
+          correct++;
+        }
       }
 
+      console.log("Correct Order: ", correctOrder);
+      console.log("Attempt: ", attempt);
+
       if (correct === correctOrder.length) {
-        alert("🎉 完成合作可頌！準備前往第四關！");
+        alert("🎉 完成合作！準備前往第四關！");
         window.location.href = "games_4.html";
       } else {
-        alert(`有 ${correct} 個材料放對位置，請再試一次！`);
+        alert(`有 ${correct} 個圖片放對位置，請再試一次！`);
       }
     }
 

@@ -60,12 +60,9 @@
       overflow: hidden;
     }
     .note {
-      width: 50px;
-      height: 50px;
       background: yellow;
       position: absolute;
       top: -60px;
-      animation: drop 3s linear forwards;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -74,9 +71,16 @@
       color: black;
       border-radius: 6px;
       user-select: none;
+      cursor: pointer;
+      animation: slideDown 3s forwards;
     }
-    @keyframes drop {
-      to { top: 280px; }
+    @keyframes slideDown {
+      from {
+        top: -60px;
+      }
+      to {
+        top: 240px; /* 音符停在灰色區域內 */
+      }
     }
     .feedback {
       font-size: 2em;
@@ -116,8 +120,8 @@
     <h1>SDGs 第17項 - 夥伴關係：旋律節奏遊戲</h1>
 
     <div id="intro">
-      <p>🎮 遊戲玩法：當節奏音符下落至判定區時，按下對應按鍵（A、S、D、J、K、L）。</p>
-      <p>✅ 按對顯示「Perfect」，得 2 分；❌ 按錯螢幕變紅，扣 1 分。</p>
+      <p>🎮 遊戲玩法：當音符出現在區域時，點擊對應的音符。</p>
+      <p>✅ 點擊正確音符顯示「Perfect」，得 2 分；❌ 點錯音符，扣 1 分。</p>
       <p>🎯 分數達 30 分過關，未達將重新開始。</p>
       <p>🌏 SDGs 第17項強調全球合作與夥伴關係。每過一關，就代表你成功促成一個新的邦交國加入合作，實踐全球夥伴行動！</p>
       <button id="start-btn">開始遊戲</button>
@@ -167,18 +171,54 @@
     }
 
     function createNote() {
-      const keys = ["A", "S", "D", "J", "K", "L"];
+      const keys = ["援助最低度開發國家", "國際合作", "強化國際支持", "增加開發中國家的出口量"];
       const key = keys[Math.floor(Math.random() * keys.length)];
 
       const note = document.createElement('div');
       note.classList.add('note');
       note.textContent = key;
-      note.style.left = `${Math.random() * 90 + 5}%`;
-      note.dataset.key = key; // 記錄該音符應按的鍵
+      note.style.left = `${Math.random() * 70 + 15}%`;  // 保證音符不會超出灰色區域
+      note.dataset.key = key;  // 記錄該音符應按的鍵
       noteArea.appendChild(note);
 
+      note.addEventListener('click', () => {
+        if (note.dataset.key === key) {
+          note.remove();
+          score += 2;
+          notesHit++;
+          showFeedback('Perfect', 'lightgreen');
+        } else {
+          score -= 1;
+          showFeedback('Miss', 'red');
+          flashRed();
+        }
+
+        scoreDisplay.textContent = score;
+        updateProgress();
+
+        if (notesHit >= totalNotes) {
+          clearInterval(gameInterval);
+          bgm.pause();
+
+          if (score >= targetScore) {
+            // 成就紀錄寫入 localStorage
+            localStorage.setItem('ach_japan_level1_cleared', 'true');
+
+            showFeedback('恭喜過關！', 'lightgreen');  // 顯示過關文字
+            setTimeout(() => {
+              window.location.href = 'games_2.html';
+            }, 1000);  // 1秒後跳轉
+          } else {
+            setTimeout(() => {
+              alert('分數未達30分，請再試一次！');
+              window.location.reload();
+            }, 100);
+          }
+        }
+      });
+
       setTimeout(() => {
-        // 音符消失時，若未被按則扣分
+        // 音符消失時，若未被點擊則扣分
         if (note.parentElement) {
           note.remove();
           score -= 1;
@@ -208,50 +248,6 @@
 
       gameInterval = setInterval(createNote, 2000);
     }
-
-    document.addEventListener('keydown', (e) => {
-      if (gameContent.style.display === 'none') return; // 遊戲沒開始不處理按鍵
-
-      const keyPressed = e.key.toUpperCase();
-      const allowedKeys = ["A", "S", "D", "J", "K", "L"];
-      if (!allowedKeys.includes(keyPressed)) return;
-
-      // 找第一個音符，且按鍵吻合才算命中
-      const note = document.querySelector('.note');
-      if (note && note.dataset.key === keyPressed) {
-        note.remove();
-        score += 2;
-        notesHit++;
-        showFeedback('Perfect', 'lightgreen');
-      } else {
-        score -= 1;
-        showFeedback('Miss', 'red');
-        flashRed();
-      }
-
-      scoreDisplay.textContent = score;
-      updateProgress();
-
-      if (notesHit >= totalNotes) {
-        clearInterval(gameInterval);
-        bgm.pause();
-
-        if (score >= targetScore) {
-          // 成就紀錄寫入 localStorage
-          localStorage.setItem('ach_japan_level1_cleared', 'true');
-
-          showFeedback('恭喜過關！', 'lightgreen');  // 顯示過關文字
-          setTimeout(() => {
-            window.location.href = 'games_2.html';
-          }, 1000);  // 1秒後跳轉
-        } else {
-          setTimeout(() => {
-            alert('分數未達30分，請再試一次！');
-            window.location.reload();
-          }, 100);
-        }
-      }
-    });
 
     startBtn.addEventListener('click', startGame);
   </script>

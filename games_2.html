@@ -117,11 +117,11 @@
   <audio id="bgm" src="audio/bgm_kenya.mp3" volume="0.2"></audio>
   <script>
     const data = [
-      { name: "大象", img: "images/elephant.png" },
-      { name: "長頸鹿", img: "images/giraffe.png" },
-      { name: "獅子", img: "images/lion.png" },
-      { name: "斑馬", img: "images/zebra.png" },
-      { name: "肯亞地圖", img: "images/kenya_map.png" }
+      { name: "全球性貿易", img: "images/global_trade.png" },
+      { name: "世界貿易組織（WTO）", img: "images/wto_logo.png" },
+      { name: "社會夥伴關係", img: "images/social_partnership.png" },
+      { name: "協助開發中國家", img: "images/aid_developing_countries.png" },
+      { name: "擴大其科技使用", img: "images/technology_expansion.png" }
     ];
 
     const bgm = document.getElementById('bgm');
@@ -239,10 +239,10 @@
     startBtn.addEventListener('click', () => {
       intro.style.display = 'none';
       gameContent.style.display = 'block';
-bgm.volume = 0.2; // ✅ 加上這一行：設定音量
-  bgm.play().catch((err) => {
-    console.warn("音樂播放失敗：", err);
-  });
+      bgm.volume = 0.2; // ✅ 加上這一行：設定音量
+      bgm.play().catch((err) => {
+        console.warn("音樂播放失敗：", err);
+      });
       renderCards();
 
       setTimeout(() => {
