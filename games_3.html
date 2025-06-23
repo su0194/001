@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>第三關：法國 可頌大作戰</title>
+  <style>
+    @font-face {
+      font-family: 'WCL07';
+      src: url('fonts/wcl-07.ttf') format('truetype');
+    }
+    body {
+      margin: 0;
+      font-family: 'WCL07', sans-serif;
+      background: url('images/bg_france.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .materials, .input-area {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .material-img {
+      width: 120px;
+      height: auto;
+      border: 3px solid transparent;
+      border-radius: 10px;
+      cursor: grab;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .material-img:hover {
+      transform: scale(1.1);
+      border-color: #fff;
+    }
+    .drop-slot {
+      width: 120px;
+      height: 120px;
+      border: 3px dashed #ccc;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+    .drop-slot img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
+    .btn {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 30px;
+      font-size: 1.5em;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+    #game-content {
+      display: none;
+    }
+    .flag {
+      width: 60px;
+      height: auto;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SDGs 第17項 - 法國合作任務：可頌大作戰</h1>
+    <img src="images/france.png" class="flag" alt="法國國旗" />
+    <div id="intro">
+      <p>🥐 合作烘焙任務開始囉！請將五個材料按照正確順序拖曳至下方空格中，完成可頌大作戰。</p>
+      <p>🔁 每次嘗試後，系統會告訴你幾個材料位置正確，試著找出正解吧！</p>
+      <button id="start-btn" class="btn">開始遊戲</button>
+    </div>
+
+    <div id="game-content">
+      <h2>請拖曳正確順序的材料：</h2>
+      <div class="input-area" id="slots">
+        <div class="drop-slot" data-index="0"></div>
+        <div class="drop-slot" data-index="1"></div>
+        <div class="drop-slot" data-index="2"></div>
+        <div class="drop-slot" data-index="3"></div>
+        <div class="drop-slot" data-index="4"></div>
+      </div>
+
+      <div class="materials" id="material-list">
+        <!-- 動態加入圖片 -->
+      </div>
+
+      <button class="btn" onclick="checkOrder()">提交配方</button>
+    </div>
+  </div>
+
+  <audio id="bgm" src="audio/bgm_france.mp3" loop></audio>
+
+  <script>
+    const correctOrder = ["flour.png", "butter.png", "yeast.png", "sugar.png", "milk.png"];
+    let currentAttempt = [];
+    const slots = document.querySelectorAll('.drop-slot');
+    const materials = ["flour.png", "butter.png", "yeast.png", "sugar.png", "milk.png"];
+
+    function shuffleMaterials() {
+      const shuffled = [...materials].sort(() => Math.random() - 0.5);
+      const container = document.getElementById('material-list');
+      container.innerHTML = "";
+      shuffled.forEach(name => {
+        const img = document.createElement("img");
+        img.src = `images/${name}`;
+        img.className = "material-img";
+        img.draggable = true;
+        img.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData("text/plain", name);
+        });
+        container.appendChild(img);
+      });
+    }
+
+    slots.forEach(slot => {
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        const name = e.dataTransfer.getData("text/plain");
+        const img = document.createElement("img");
+        img.src = `images/${name}`;
+        slot.innerHTML = "";
+        slot.appendChild(img);
+        slot.setAttribute("data-img", name);
+      });
+    });
+
+    function checkOrder() {
+      const attempt = [];
+      slots.forEach(slot => {
+        attempt.push(slot.getAttribute("data-img"));
+      });
+
+      if (attempt.includes(null) || attempt.includes("null") || attempt.includes(undefined)) {
+        alert("請確保每個空格都有材料喔！");
+        return;
+      }
+
+      let correct = 0;
+      for (let i = 0; i < correctOrder.length; i++) {
+        if (attempt[i] === correctOrder[i]) correct++;
+      }
+
+      if (correct === correctOrder.length) {
+        alert("🎉 完成合作可頌！準備前往第四關！");
+        window.location.href = "games_4.html";
+      } else {
+        alert(`有 ${correct} 個材料放對位置，請再試一次！`);
+      }
+    }
+
+    document.getElementById("start-btn").addEventListener("click", () => {
+      document.getElementById("intro").style.display = "none";
+      document.getElementById("game-content").style.display = "block";
+
+      const bgm = document.getElementById("bgm");
+      bgm.volume = 0.2; // 音量設定為 20%
+      bgm.play().catch(err => console.warn("音樂播放錯誤：", err));
+
+      shuffleMaterials();
+    });
+  </script>
+</body>
+</html>
